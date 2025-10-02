@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { LineChart, Line, BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, FunnelChart, Funnel, LabelList } from "recharts";
+import { useQuery } from "@tanstack/react-query";
 
 // AI & Search Performance Data
 const searchFunnel = [
@@ -66,6 +67,20 @@ const aiRevenueSplit = [
 ];
 
 export default function AISearchAnalytics() {
+  const { data: metricsData, isLoading } = useQuery({
+    queryKey: ["aiMetrics"],
+    queryFn: async () => {
+      const response = await fetch("https://agnetic-ai.onrender.com/metrics");
+      if (!response.ok) throw new Error("Failed to fetch metrics");
+      return response.json();
+    },
+    refetchInterval: 30000, // Refresh every 30 seconds
+  });
+
+  const totalQueries = metricsData?.total_queries ?? 12430;
+  const avgLatency = metricsData?.avg_latency_ms ?? 320;
+  const topTerms = metricsData?.top_terms ?? {};
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -78,7 +93,7 @@ export default function AISearchAnalytics() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <StatCard
           title="AI Queries Served"
-          value="12,430"
+          value={isLoading ? "..." : totalQueries.toLocaleString()}
           change="+8%"
           changeType="positive"
           icon={Search}
@@ -86,9 +101,9 @@ export default function AISearchAnalytics() {
         />
         <StatCard
           title="Avg Query Latency"
-          value="320ms"
-          change="Healthy"
-          changeType="positive"
+          value={isLoading ? "..." : `${Math.round(avgLatency)}ms`}
+          change={avgLatency < 500 ? "Healthy" : "Monitor"}
+          changeType={avgLatency < 500 ? "positive" : "neutral"}
           icon={Clock}
           iconColor="bg-success"
         />
