@@ -275,20 +275,26 @@ export default function AISearchAnalytics() {
               <TableHeader>
                 <TableRow>
                   <TableHead>Query</TableHead>
-                  <TableHead className="text-right">Impressions</TableHead>
-                  <TableHead className="text-right">CTR</TableHead>
-                  <TableHead className="text-right">Revenue</TableHead>
+                  <TableHead className="text-right">Count</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {topSearchQueries.map((query, index) => (
-                  <TableRow key={index}>
-                    <TableCell className="font-medium">{query.query}</TableCell>
-                    <TableCell className="text-right">{query.impressions.toLocaleString()}</TableCell>
-                    <TableCell className="text-right">{query.ctr}%</TableCell>
-                    <TableCell className="text-right font-semibold">{query.revenue}</TableCell>
+                {isLoading ? (
+                  <TableRow>
+                    <TableCell colSpan={2} className="text-center text-muted-foreground">Loading...</TableCell>
                   </TableRow>
-                ))}
+                ) : Object.entries(topTerms).length > 0 ? (
+                  Object.entries(topTerms).map(([query, count], index) => (
+                    <TableRow key={index}>
+                      <TableCell className="font-medium">{query}</TableCell>
+                      <TableCell className="text-right">{count as number}</TableCell>
+                    </TableRow>
+                  ))
+                ) : (
+                  <TableRow>
+                    <TableCell colSpan={2} className="text-center text-muted-foreground">No queries yet</TableCell>
+                  </TableRow>
+                )}
               </TableBody>
             </Table>
           </CardContent>
