@@ -18,7 +18,7 @@ const App = () => (
     <TooltipProvider>
       <Toaster />
       <Sonner />
-      <BrowserRouter>
+      <BrowserRouter basename="/aeroshop-insight-hub">
         <Routes>
           <Route path="/" element={<DashboardLayout />}>
             <Route index element={<Dashboard />} />
