@@ -7,6 +7,7 @@ import { DashboardLayout } from "./components/DashboardLayout";
 import Dashboard from "./pages/Dashboard";
 import Products from "./pages/Products";
 import Orders from "./pages/Orders";
+import AISearchAnalytics from "./pages/AISearchAnalytics";
 import PlaceholderPage from "./pages/PlaceholderPage";
 import NotFound from "./pages/NotFound";
 
@@ -29,7 +30,7 @@ const App = () => (
             />
             <Route
               path="analytics"
-              element={<PlaceholderPage title="AI & Search Analytics" description="Monitor AI performance and search patterns" />}
+              element={<AISearchAnalytics />}
             />
             <Route
               path="promotions"
