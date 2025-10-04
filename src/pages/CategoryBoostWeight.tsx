@@ -4,7 +4,7 @@ import { Slider } from "@/components/ui/slider";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "@/hooks/use-toast";
-import { Sparkles, RotateCcw, Save, TrendingUp, Info } from "lucide-react";
+import { Sparkles, RotateCcw, Save, TrendingUp, Info, Plane, ArrowRight } from "lucide-react";
 import {
   Table,
   TableBody,
@@ -13,6 +13,15 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
 
 interface Category {
   id: string;
@@ -37,10 +46,29 @@ const MERCHANT_INFO = {
   id: "EDU-12345",
 };
 
+const AIRPORTS = [
+  { code: "DXB", name: "Dubai International" },
+  { code: "JFK", name: "New York JFK" },
+  { code: "LHR", name: "London Heathrow" },
+  { code: "CDG", name: "Paris Charles de Gaulle" },
+  { code: "SIN", name: "Singapore Changi" },
+  { code: "HND", name: "Tokyo Haneda" },
+  { code: "SYD", name: "Sydney" },
+  { code: "LAX", name: "Los Angeles" },
+];
+
+const CABIN_CLASSES = ["Economy", "Business", "First Class"];
+
 export default function CategoryBoostWeight() {
   const [categories, setCategories] = useState<Category[]>(MOCK_CATEGORIES);
   const [globalBoost, setGlobalBoost] = useState<number>(1.0);
   const [hasChanges, setHasChanges] = useState(false);
+  
+  // Cabin class and route settings
+  const [applyCabinClass, setApplyCabinClass] = useState(false);
+  const [selectedCabinClass, setSelectedCabinClass] = useState("Economy");
+  const [originAirport, setOriginAirport] = useState("DXB");
+  const [destinationAirport, setDestinationAirport] = useState("CDG");
 
   const getBoostLabel = (weight: number): { label: string; variant: "destructive" | "secondary" | "default" } => {
     if (weight < 0.7) return { label: "Low", variant: "destructive" };
@@ -100,9 +128,13 @@ export default function CategoryBoostWeight() {
     // Mock API call
     await new Promise((resolve) => setTimeout(resolve, 800));
     
+    const contextInfo = applyCabinClass 
+      ? `for ${selectedCabinClass} on ${originAirport} → ${destinationAirport}`
+      : `for all cabin classes`;
+    
     toast({
       title: "Weights Saved Successfully",
-      description: `Updated boost weights for ${MERCHANT_INFO.name}`,
+      description: `Updated boost weights ${contextInfo}`,
     });
     setHasChanges(false);
   };
@@ -123,7 +155,7 @@ export default function CategoryBoostWeight() {
       {/* Merchant Context */}
       <Card className="border-primary/20 bg-gradient-to-r from-primary/5 to-accent/5">
         <CardContent className="pt-6">
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4">
             <div>
               <p className="text-sm text-muted-foreground">Current Merchant</p>
               <p className="text-xl font-semibold text-foreground">{MERCHANT_INFO.name}</p>
@@ -135,6 +167,134 @@ export default function CategoryBoostWeight() {
           </div>
         </CardContent>
       </Card>
+
+      {/* Route and Cabin Class Selector */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Route Selector */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-lg">
+              <Plane className="h-5 w-5 text-accent" />
+              Route Preview
+            </CardTitle>
+            <CardDescription>
+              Preview how boosts apply for specific flight routes
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="flex items-center gap-3">
+              <div className="flex-1">
+                <Label htmlFor="origin" className="text-sm font-medium mb-2 block">
+                  Origin
+                </Label>
+                <Select value={originAirport} onValueChange={setOriginAirport}>
+                  <SelectTrigger id="origin" className="bg-background">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent className="bg-popover z-50">
+                    {AIRPORTS.map((airport) => (
+                      <SelectItem key={airport.code} value={airport.code}>
+                        <div className="flex items-center gap-2">
+                          <span className="font-semibold">{airport.code}</span>
+                          <span className="text-muted-foreground">- {airport.name}</span>
+                        </div>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              
+              <ArrowRight className="h-5 w-5 text-muted-foreground mt-6" />
+              
+              <div className="flex-1">
+                <Label htmlFor="destination" className="text-sm font-medium mb-2 block">
+                  Destination
+                </Label>
+                <Select value={destinationAirport} onValueChange={setDestinationAirport}>
+                  <SelectTrigger id="destination" className="bg-background">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent className="bg-popover z-50">
+                    {AIRPORTS.map((airport) => (
+                      <SelectItem key={airport.code} value={airport.code}>
+                        <div className="flex items-center gap-2">
+                          <span className="font-semibold">{airport.code}</span>
+                          <span className="text-muted-foreground">- {airport.name}</span>
+                        </div>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            <div className="pt-2 px-3 py-2 bg-accent/10 rounded-md">
+              <p className="text-sm text-foreground font-medium">
+                Current Route: <span className="text-accent">{originAirport} → {destinationAirport}</span>
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Cabin Class Toggle */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg">Cabin Class Targeting</CardTitle>
+            <CardDescription>
+              Apply different boost weights by cabin class
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="flex items-center justify-between p-3 rounded-lg border bg-muted/30">
+              <Label htmlFor="cabin-toggle" className="text-sm font-medium cursor-pointer">
+                Enable Cabin Class Filters
+              </Label>
+              <Switch
+                id="cabin-toggle"
+                checked={applyCabinClass}
+                onCheckedChange={setApplyCabinClass}
+              />
+            </div>
+
+            {applyCabinClass && (
+              <div className="space-y-2 animate-fade-in">
+                <Label htmlFor="cabin-class" className="text-sm font-medium">
+                  Select Cabin Class
+                </Label>
+                <Select value={selectedCabinClass} onValueChange={setSelectedCabinClass}>
+                  <SelectTrigger id="cabin-class" className="bg-background">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent className="bg-popover z-50">
+                    {CABIN_CLASSES.map((cabinClass) => (
+                      <SelectItem key={cabinClass} value={cabinClass}>
+                        {cabinClass}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                
+                <div className="mt-3 p-3 bg-primary/10 rounded-md border border-primary/20">
+                  <p className="text-sm text-foreground">
+                    <span className="font-semibold">Active for:</span>{" "}
+                    <Badge variant="default" className="ml-1">
+                      {selectedCabinClass}
+                    </Badge>
+                  </p>
+                </div>
+              </div>
+            )}
+
+            {!applyCabinClass && (
+              <div className="p-3 bg-muted/50 rounded-md border">
+                <p className="text-sm text-muted-foreground">
+                  Boost weights will apply to all cabin classes uniformly
+                </p>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      </div>
 
       {/* Global Controls */}
       <Card>
