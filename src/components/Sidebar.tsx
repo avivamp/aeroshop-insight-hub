@@ -10,6 +10,7 @@ import {
   Settings,
   Activity,
   Plane,
+  Sparkles,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -23,6 +24,7 @@ const menuItems = [
   { icon: ShoppingCart, label: "Orders & Fulfillment", path: "/orders" },
   { icon: Users, label: "Customer Insights", path: "/customers" },
   { icon: Search, label: "AI & Search Analytics", path: "/analytics" },
+  { icon: Sparkles, label: "Category Boost Weight", path: "/category-boost" },
   { icon: Tag, label: "Promotions & Pricing", path: "/promotions" },
   { icon: Gift, label: "Loyalty & Personalization", path: "/loyalty" },
   { icon: Settings, label: "Integrations & Settings", path: "/settings" },

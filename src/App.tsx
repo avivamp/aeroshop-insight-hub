@@ -8,6 +8,7 @@ import Dashboard from "./pages/Dashboard";
 import Products from "./pages/Products";
 import Orders from "./pages/Orders";
 import AISearchAnalytics from "./pages/AISearchAnalytics";
+import CategoryBoostWeight from "./pages/CategoryBoostWeight";
 import PlaceholderPage from "./pages/PlaceholderPage";
 import NotFound from "./pages/NotFound";
 
@@ -31,6 +32,10 @@ const App = () => (
             <Route
               path="analytics"
               element={<AISearchAnalytics />}
+            />
+            <Route
+              path="category-boost"
+              element={<CategoryBoostWeight />}
             />
             <Route
               path="promotions"
